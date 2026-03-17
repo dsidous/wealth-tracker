@@ -1,0 +1,71 @@
+import {
+  pgTable,
+  text,
+  timestamp,
+  uuid,
+  varchar,
+  pgEnum,
+  decimal,
+  unique,
+  index,
+} from 'drizzle-orm/pg-core';
+
+export const assetTypes = pgEnum('asset_types', [
+  'CASH',
+  'STOCK',
+  'GOLD',
+  'CRYPTO',
+  'REAL_ESTATE',
+]);
+
+export const users = pgTable('users', {
+  baseCurrency: varchar('base_currency', { length: 3 }).notNull(),
+  createdAt: timestamp('created_at').defaultNow(),
+  externalId: text('external_id').notNull().unique(),
+  id: uuid('id').primaryKey().defaultRandom().notNull(),
+});
+
+export const assets = pgTable(
+  'assets',
+  {
+    balance: decimal('balance', { precision: 18, scale: 8 }).notNull(),
+    createdAt: timestamp('created_at').defaultNow(),
+    currency: varchar('currency', { length: 3 }).notNull(),
+    id: uuid('id').primaryKey().defaultRandom().notNull(),
+    name: varchar('name', { length: 100 }).notNull(),
+    type: assetTypes('type').notNull(),
+    updatedAt: timestamp('updated_at').defaultNow().notNull(),
+    userId: uuid('user_id')
+      .references(() => users.id)
+      .notNull(),
+  },
+  (table) => [index('assets_user_id_index').on(table.userId)],
+);
+
+export const transactions = pgTable('transactions', {
+  amount: decimal('amount', { precision: 18, scale: 8 }).notNull(),
+  assetId: uuid('asset_id')
+    .references(() => assets.id)
+    .notNull(),
+  category: varchar('category', { length: 50 }).notNull(),
+  createdAt: timestamp('created_at').defaultNow(),
+  id: uuid('id').primaryKey().defaultRandom().notNull(),
+  note: text('note').notNull(),
+});
+
+export const exchangeRates = pgTable(
+  'exchange_rates',
+  {
+    id: uuid('id').primaryKey().defaultRandom().notNull(),
+    fromCurrency: varchar('from_currency', { length: 3 }).notNull(),
+    toCurrency: varchar('to_currency', { length: 3 }).notNull(),
+    rate: decimal('rate', { precision: 19, scale: 10 }).notNull(),
+    updatedAt: timestamp('updated_at').defaultNow().notNull(),
+  },
+  (table) => [
+    unique('exchange_rates_pair_unique').on(
+      table.fromCurrency,
+      table.toCurrency,
+    ),
+  ],
+);
