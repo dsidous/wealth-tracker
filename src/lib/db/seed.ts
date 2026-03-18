@@ -66,6 +66,7 @@ async function main() {
     await tx.insert(exchangeRates).values([
       { fromCurrency: 'USD', toCurrency: 'THB', rate: '35.5000000000' },
       { fromCurrency: 'BTC', toCurrency: 'USD', rate: '65000.0000000000' },
+      { fromCurrency: 'BTC', toCurrency: 'THB', rate: '2450000.00' },
     ]);
   });
 
