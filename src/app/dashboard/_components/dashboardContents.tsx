@@ -5,14 +5,13 @@ import {
   CardContent,
   CardDescription,
 } from '@/components/ui/card';
-import { getDashboardData } from '@/services/assets/assets';
+import { getAssetSummary } from '@/services/assets';
 import { formatDate } from '@/utils';
 
 export default async function DashboardContents() {
-  const { assets, totalNetWorth, baseCurrency, lastUpdated } =
-    await getDashboardData('user_test_clerk_123');
-
-  console.log(assets, totalNetWorth, baseCurrency, lastUpdated);
+  const { totalNetWorth, baseCurrency, lastUpdated } = await getAssetSummary(
+    'user_test_clerk_123',
+  );
 
   return (
     <div className='flex flex-row gap-4 justify-between'>
