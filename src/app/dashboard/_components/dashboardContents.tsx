@@ -3,39 +3,35 @@ import {
   CardHeader,
   CardTitle,
   CardContent,
-  CardDescription,
+  CardFooter,
 } from '@/components/ui/card';
 import { getAssetSummary } from '@/services/assets';
 import { formatDate } from '@/utils';
+import { AssetsDataTable } from './assetsDataTable';
 
 export default async function DashboardContents() {
-  const { totalNetWorth, baseCurrency, lastUpdated } = await getAssetSummary(
-    'user_test_clerk_123',
-  );
+  const { assets, totalNetWorth, baseCurrency, lastUpdated } =
+    await getAssetSummary('user_test_clerk_123');
 
   return (
-    <div className='flex flex-row gap-4 justify-between'>
+    <div className='flex flex-col gap-4 justify-between'>
       <Card className='w-xs'>
         <CardHeader>
-          <CardTitle>
-            Total Net Worth: {totalNetWorth} {baseCurrency}
-          </CardTitle>
-          <CardDescription>
-            Last updated: {formatDate(lastUpdated)}
-          </CardDescription>
-        </CardHeader>
-      </Card>
-      <Card className='w-lg'>
-        <CardHeader>
           <CardTitle>Total Net Worth</CardTitle>
-          <CardDescription>
-            The total value of all your assets minus your liabilities.
-          </CardDescription>
+          <CardContent className='text-3xl font-bold text-center'>
+            {`${parseFloat(totalNetWorth).toLocaleString(undefined, {
+              minimumFractionDigits: 2,
+              maximumFractionDigits: 2,
+            })} ${baseCurrency}`}
+          </CardContent>
+          <CardFooter className='flex justify-end border-none bg-transparent'>
+            <p className='text-xs text-muted-foreground'>
+              Last updated: {formatDate(lastUpdated)}
+            </p>
+          </CardFooter>
         </CardHeader>
-        <CardContent>
-          <div>...</div>
-        </CardContent>
       </Card>
+      <AssetsDataTable assets={assets} />
     </div>
   );
 }

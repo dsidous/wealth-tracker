@@ -69,3 +69,6 @@ export async function getAssetSummary(externalId: string) {
     totalNetWorth: totalNetWorth.toFixed(2),
   };
 }
+
+export type AssetSummary = Awaited<ReturnType<typeof getAssetSummary>>;
+export type AssetSummaryItem = AssetSummary['assets'][number];
