@@ -9,6 +9,7 @@ import {
   unique,
   index,
 } from 'drizzle-orm/pg-core';
+import { relations } from 'drizzle-orm';
 
 export const assetTypes = pgEnum('asset_types', [
   'CASH',
@@ -24,6 +25,10 @@ export const users = pgTable('users', {
   externalId: text('external_id').notNull().unique(),
   id: uuid('id').primaryKey().defaultRandom().notNull(),
 });
+
+export const usersRelations = relations(users, ({ many }) => ({
+  assets: many(assets),
+}));
 
 export const assets = pgTable(
   'assets',
@@ -41,6 +46,13 @@ export const assets = pgTable(
   },
   (table) => [index('assets_user_id_index').on(table.userId)],
 );
+
+export const assetsRelations = relations(assets, ({ one }) => ({
+  user: one(users, {
+    fields: [assets.userId],
+    references: [users.id],
+  }),
+}));
 
 export const transactions = pgTable('transactions', {
   amount: decimal('amount', { precision: 18, scale: 8 }).notNull(),
