@@ -24,12 +24,14 @@ export const TotalNetWorth = ({
       <CardHeader>
         <CardTitle>Total Net Worth</CardTitle>
         <CardContent className='text-3xl font-bold text-center'>
-          {`${parseFloat(totalNetWorth).toLocaleString(undefined, {
-            minimumFractionDigits: 2,
-            maximumFractionDigits: 2,
-          })} ${baseCurrency}`}
+          <div className='font-mono flex items-center justify-center gap-2'>
+            {`${parseFloat(totalNetWorth).toLocaleString(undefined, {
+              minimumFractionDigits: 2,
+              maximumFractionDigits: 2,
+            })} ${baseCurrency}`}
+          </div>
         </CardContent>
-        <CardFooter className='flex justify-end border-none bg-transparent'>
+        <CardFooter className='flex justify-end border-none bg-transparent pt-0'>
           <p className='text-xs text-muted-foreground'>
             Last updated: {formatDate(lastUpdated)}
           </p>
