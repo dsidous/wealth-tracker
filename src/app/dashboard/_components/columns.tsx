@@ -2,6 +2,15 @@
 
 import { ColumnDef } from '@tanstack/react-table';
 import type { AssetSummaryItem } from '@/services/assets';
+import { Badge } from '@/components/ui/badge';
+
+const assetTypeBadgeVariants = {
+  CASH: 'secondary',
+  STOCK: 'destructive',
+  GOLD: 'outline',
+  CRYPTO: 'default',
+  REAL_ESTATE: 'secondary',
+} as const;
 
 export const columns: ColumnDef<AssetSummaryItem>[] = [
   {
@@ -9,23 +18,55 @@ export const columns: ColumnDef<AssetSummaryItem>[] = [
     header: 'Asset',
   },
   {
-    accessorKey: 'balance',
-    header: 'Balance',
+    accessorKey: 'type',
+    header: () => <div className='text-center'>Type</div>,
     cell: ({ row }) => (
-      <div className='font-mono'>
-        {row.original.balance} {row.original.currency}
+      <div className='flex items-center justify-center'>
+        <Badge
+          variant={
+            assetTypeBadgeVariants[
+              row.original.type as keyof typeof assetTypeBadgeVariants
+            ]
+          }
+        >
+          {row.original.type}
+        </Badge>
       </div>
     ),
   },
   {
-    accessorKey: 'currency',
-    header: 'Currency',
-    cell: ({ row }) => <div className='font-mono'>{row.original.currency}</div>,
+    accessorKey: 'currentRate',
+    header: () => <div className='text-right'>Current Rate</div>,
+    cell: ({ row }) => (
+      <div className='font-mono text-right text-xs'>
+        {`${parseFloat(row.original.currentRate).toLocaleString(undefined, {
+          minimumFractionDigits: 2,
+          maximumFractionDigits: 2,
+        })}`}
+      </div>
+    ),
   },
   {
-    accessorKey: 'type',
-    header: 'Type',
-    cell: ({ row }) => <div className='font-mono'>{row.original.type}</div>,
+    accessorKey: 'balance',
+    header: () => <div className='text-right'>Balance</div>,
+    cell: ({ row }) => (
+      <div className='font-mono text-right'>
+        {`${parseFloat(row.original.balance).toLocaleString(undefined, {
+          minimumFractionDigits: 2,
+          maximumFractionDigits: 2,
+        })}`}
+      </div>
+    ),
+    maxSize: 100,
+  },
+  {
+    accessorKey: 'currency',
+    header: () => <div className='text-center'>Currency</div>,
+    cell: ({ row }) => (
+      <div className='font-mono text-center text-xs'>
+        <Badge variant='outline'>{row.original.currency}</Badge>
+      </div>
+    ),
   },
   {
     accessorKey: 'valueInBaseCurrency',
@@ -34,8 +75,11 @@ export const columns: ColumnDef<AssetSummaryItem>[] = [
       const { valueInBaseCurrency } = row.original;
 
       return (
-        <div className='flex items-center justify-end gap-2 font-medium'>
-          {`฿${parseFloat(valueInBaseCurrency).toLocaleString()}`}
+        <div className='font-mono text-right'>
+          {`฿${parseFloat(valueInBaseCurrency).toLocaleString(undefined, {
+            minimumFractionDigits: 2,
+            maximumFractionDigits: 2,
+          })}`}
         </div>
       );
     },
