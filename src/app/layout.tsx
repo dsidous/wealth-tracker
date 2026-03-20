@@ -1,9 +1,8 @@
-// For adding custom fonts with other frameworks, see:
-// https://tailwindcss.com/docs/font-family
 import type { Metadata } from 'next';
 import { Montserrat } from 'next/font/google';
 import './globals.css';
 import { LOCALE } from '@/utils';
+import { Suspense } from 'react';
 
 const fontSans = Montserrat({
   subsets: ['latin'],
@@ -22,7 +21,13 @@ export default function RootLayout({
 }>) {
   return (
     <html lang={LOCALE} className={fontSans.variable}>
-      <body className='font-sans antialiased p-4'>{children}</body>
+      <body className='font-sans antialiased p-4'>
+        <Suspense fallback={<div>Loading...</div>}>
+          <div className='flex flex-col gap-4 max-w-7xl mx-auto'>
+            {children}
+          </div>
+        </Suspense>
+      </body>
     </html>
   );
 }
