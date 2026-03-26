@@ -1,6 +1,7 @@
 import { getAssetSummary } from '@/services/assets';
 import { AssetsDataTable } from './assetsDataTable';
 import { TotalNetWorth } from './totalNetWorth';
+import { AddAssetDialog } from './addAssetDialog';
 
 export default async function DashboardContents() {
   const { assets, totalNetWorth, baseCurrency, lastUpdated } =
@@ -13,6 +14,7 @@ export default async function DashboardContents() {
         baseCurrency={baseCurrency}
         lastUpdated={lastUpdated}
       />
+      <AddAssetDialog />
       <AssetsDataTable assets={assets} />
     </div>
   );
