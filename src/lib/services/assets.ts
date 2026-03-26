@@ -1,5 +1,5 @@
 import { db } from '@/db';
-import { exchangeRates, users } from '@/db/schema';
+import { assets, exchangeRates, users } from '@/db/schema';
 import { eq } from 'drizzle-orm';
 import { Big } from 'big.js';
 import { syncRateConverter } from './exchangeRate';
@@ -58,3 +58,10 @@ export async function getAssetSummary(externalId: string) {
 
 export type AssetSummary = Awaited<ReturnType<typeof getAssetSummary>>;
 export type AssetSummaryItem = AssetSummary['assets'][number];
+
+export type NewAsset = typeof assets.$inferInsert;
+
+export async function createAsset(data: NewAsset) {
+  const [result] = await db.insert(assets).values(data).returning();
+  return result;
+}
