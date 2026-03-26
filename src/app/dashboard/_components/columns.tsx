@@ -35,6 +35,15 @@ export const columns: ColumnDef<AssetSummaryItem>[] = [
     ),
   },
   {
+    accessorKey: 'currency',
+    header: () => <div className='text-center'>Currency</div>,
+    cell: ({ row }) => (
+      <div className='font-mono text-center text-xs'>
+        <Badge variant='outline'>{row.original.currency}</Badge>
+      </div>
+    ),
+  },
+  {
     accessorKey: 'currentRate',
     header: () => <div className='text-right'>Current Rate</div>,
     cell: ({ row }) => (
@@ -59,15 +68,7 @@ export const columns: ColumnDef<AssetSummaryItem>[] = [
     ),
     maxSize: 100,
   },
-  {
-    accessorKey: 'currency',
-    header: () => <div className='text-center'>Currency</div>,
-    cell: ({ row }) => (
-      <div className='font-mono text-center text-xs'>
-        <Badge variant='outline'>{row.original.currency}</Badge>
-      </div>
-    ),
-  },
+
   {
     accessorKey: 'valueInBaseCurrency',
     header: () => <div className='text-right'>Value (THB)</div>,
