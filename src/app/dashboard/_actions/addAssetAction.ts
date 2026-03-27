@@ -3,21 +3,33 @@
 import { revalidatePath } from 'next/cache';
 import { createAsset } from '@/services/assets';
 import { addAssetFormSchema } from '@/validation/addAssetForm';
+import { auth } from '@clerk/nextjs/server';
+import { eq } from 'drizzle-orm';
+import { db } from '@/db';
+import { users } from '@/db/schema';
 
-export async function addAssetAction(formData: FormData) {
-  // 2. Validate the user (use Clerk/Auth here)
-  const userId = 'ce7c4ef0-c5f1-4b1f-ad4a-e56e30fbb0c2';
+export async function addAssetAction(raw: unknown) {
+  const { userId: externalId } = await auth();
 
-  // 3. Validate the inputs
-  const rawData = Object.fromEntries(formData.entries());
-  const validated = addAssetFormSchema.parse(rawData);
+  if (!externalId) {
+    throw new Error('Unauthorized');
+  }
 
-  // 4. Call the Service
-  await createAsset({
-    ...validated,
-    userId,
+  const user = await db.query.users.findFirst({
+    where: eq(users.externalId, externalId),
   });
 
-  // 5. MAGIC: Tell Next.js to refresh the Dashboard data
+  if (!user) {
+    throw new Error('User not found');
+  }
+
+  const validated = addAssetFormSchema.parse(raw);
+
+  await createAsset({
+    ...validated,
+    currency: validated.currency.toUpperCase(),
+    userId: user.id,
+  });
+
   revalidatePath('/dashboard');
 }
