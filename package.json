@@ -11,7 +11,8 @@
     "db:seed": "tsx src/lib/db/seed.ts",
     "dev": "next dev",
     "lint": "eslint",
-    "start": "next start"
+    "start": "next start",
+    "tunnel": "ngrok http 3000 --url=chasmogamic-depauperate-darius.ngrok-free.dev"
   },
   "dependencies": {
     "@clerk/nextjs": "^7.0.7",
