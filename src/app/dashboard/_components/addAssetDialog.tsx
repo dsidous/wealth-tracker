@@ -37,15 +37,6 @@ const addAssetFormDefaults: AddAssetFormValues = {
   type: 'CASH',
 };
 
-async function submitAddAssetForm(values: AddAssetFormValues) {
-  const fd = new FormData();
-  fd.set('name', values.name);
-  fd.set('balance', values.balance);
-  fd.set('currency', values.currency.toUpperCase());
-  fd.set('type', values.type);
-  await addAssetAction(fd);
-}
-
 export function AddAssetDialog() {
   const [open, setOpen] = useState(false);
 
@@ -55,7 +46,7 @@ export function AddAssetDialog() {
   });
 
   const handleSubmit = async (values: AddAssetFormValues) => {
-    await submitAddAssetForm(values);
+    await addAssetAction(values);
     form.reset(addAssetFormDefaults);
     setOpen(false);
   };
