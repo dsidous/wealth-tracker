@@ -3,12 +3,13 @@ import { AssetsDataTable } from './assetsDataTable';
 import { TotalNetWorth } from './totalNetWorth';
 import { AddAssetDialog } from './addAssetDialog';
 import { auth } from '@clerk/nextjs/server';
+import { redirect } from 'next/navigation';
 
 export default async function DashboardContents() {
   const { userId } = await auth();
 
   if (!userId) {
-    return <div>Unauthorized</div>;
+    redirect('/');
   }
 
   const { assets, totalNetWorth, baseCurrency, lastUpdated } =

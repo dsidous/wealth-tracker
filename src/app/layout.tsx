@@ -10,6 +10,7 @@ import {
   SignUpButton,
   UserButton,
 } from '@clerk/nextjs';
+import { Button } from '@/components/ui/button';
 
 const fontSans = Montserrat({
   subsets: ['latin'],
@@ -32,13 +33,24 @@ export default function RootLayout({
         <Suspense fallback={<div>Loading...</div>}>
           <div className='flex flex-col gap-4 max-w-7xl mx-auto'>
             <ClerkProvider>
-              <header className='flex justify-end items-center p-4 gap-4 h-16'>
+              <header className='flex h-12 items-center justify-end gap-2 p-3 sm:h-14 sm:gap-2.5'>
                 <Show when='signed-out'>
-                  <SignInButton />
-                  <SignUpButton>
-                    <button className='bg-[#6c47ff] text-white rounded-full font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 cursor-pointer'>
-                      Sign Up
-                    </button>
+                  <SignInButton mode='redirect'>
+                    <Button
+                      variant='outline'
+                      size='sm'
+                      className='rounded-full px-3 text-xs'
+                    >
+                      Sign in
+                    </Button>
+                  </SignInButton>
+                  <SignUpButton mode='redirect'>
+                    <Button
+                      size='sm'
+                      className='rounded-full px-3 text-xs'
+                    >
+                      Sign up
+                    </Button>
                   </SignUpButton>
                 </Show>
                 <Show when='signed-in'>

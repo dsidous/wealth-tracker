@@ -1,13 +1,12 @@
-import { db } from '@/db';
-import { users } from '@/db/schema';
+import { auth } from '@clerk/nextjs/server';
+import { redirect } from 'next/navigation';
+import { HomeMarketing } from './_components/home-marketing';
 
-export default async function Page() {
-  const usersData = await db.select().from(users);
-  return (
-    <div>
-      {usersData?.map((user) => (
-        <div key={user.id}>{user.baseCurrency}</div>
-      ))}
-    </div>
-  );
+export default async function HomePage() {
+  const { userId } = await auth();
+  if (userId) {
+    redirect('/dashboard');
+  }
+
+  return <HomeMarketing />;
 }
