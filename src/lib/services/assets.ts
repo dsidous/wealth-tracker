@@ -1,5 +1,5 @@
 import { db } from '@/db';
-import { assets, exchangeRates, users } from '@/db/schema';
+import { assets, exchangeRates, transactions, users } from '@/db/schema';
 import { and, eq } from 'drizzle-orm';
 import { Big } from 'big.js';
 import { syncRateConverter } from './exchangeRate';
@@ -106,4 +106,15 @@ export async function updateAsset(
     .returning();
 
   return row ?? null;
+}
+
+export async function deleteAsset(assetId: string, userId: string) {
+  return db.transaction(async (tx) => {
+    await tx.delete(transactions).where(eq(transactions.assetId, assetId));
+    const removed = await tx
+      .delete(assets)
+      .where(and(eq(assets.id, assetId), eq(assets.userId, userId)))
+      .returning({ id: assets.id });
+    return removed[0] ?? null;
+  });
 }
