@@ -26,22 +26,26 @@ Personal wealth dashboard: aggregate assets, choose a base currency, and see net
 | **Icons** | [Lucide React](https://lucide.dev/) |
 | **Animation** | [tw-animate-css](https://github.com/Wombosvideo/tw-animate-css), custom CSS keyframes (no Framer Motion) |
 | **Auth** | [Clerk](https://clerk.com/) (`@clerk/nextjs`) — sign-in/sign-up, sessions, optional webhooks |
-| **Route protection** | Clerk `clerkMiddleware` in `src/proxy.ts` (Next.js 16 proxy convention) |
-| **Database** | [PostgreSQL](https://www.postgresql.org/) |
+| **Route protection** | Clerk `clerkMiddleware` in `src/proxy.ts` (Next.js 16 proxy convention); `/dashboard` requires a session |
+| **Database** | [PostgreSQL](https://www.postgresql.org/) via [postgres](https://github.com/porsager/postgres) (Drizzle driver; pooled URL recommended for serverless) |
 | **ORM & migrations** | [Drizzle ORM](https://orm.drizzle.team/) + [Drizzle Kit](https://orm.drizzle.team/kit-docs/overview) |
-| **Forms & validation** | [React Hook Form](https://react-hook-form.com/), [Zod](https://zod.dev/), [@hookform/resolvers](https://github.com/react-hook-form/resolvers) |
+| **Forms & validation** | [React Hook Form](https://react-hook-form.com/), [Zod](https://zod.dev/) 4.x, [@hookform/resolvers](https://github.com/react-hook-form/resolvers) |
 | **Tables** | [TanStack Table](https://tanstack.com/table) (`@tanstack/react-table`) |
 | **Utilities** | [clsx](https://github.com/lukeed/clsx), [tailwind-merge](https://github.com/dcastil/tailwind-merge), [class-variance-authority](https://cva.style/) |
-| **Numbers** | [big.js](https://mikemcl.github.io/big.js/) (dev dependency for precision where used) |
+| **Numbers** | [big.js](https://mikemcl.github.io/big.js/) for decimal-safe totals and conversions |
+| **FX / crypto rates** | [ExchangeRate-API](https://www.exchangerate-api.com/) v6 + [CoinGecko](https://www.coingecko.com/) (optional; lazy sync on dashboard) |
 | **Supabase** | [@supabase/supabase-js](https://supabase.com/docs/reference/javascript), [@supabase/ssr](https://supabase.com/docs/guides/auth/server-side) (client/server helpers; configure via env) |
 | **Webhooks** | [Svix](https://www.svix.com/) — verifies Clerk webhook signatures (`src/app/api/webhooks/clerks/`) |
 | **Linting** | [ESLint](https://eslint.org/) 9 + `eslint-config-next` |
 
 ## Features
 
-- Landing page with animated hero, feature sections, and illustrative portfolio preview
-- Clerk-authenticated dashboard (`/dashboard`) for asset summary and net worth
-- PostgreSQL persistence via Drizzle (schema and migrations under `src/lib/db/`)
+- Landing page with animated hero, feature sections, and illustrative portfolio preview; signed-in users are redirected to `/dashboard`
+- Clerk-authenticated dashboard: net worth summary, asset table (TanStack Table), **add / edit / delete** assets (server actions + RHF forms)
+- **`useConfirmDialog`** hook (`src/lib/hooks/useConfirmDialog.tsx`) — reusable `await confirm({ title, destructive, ... })` + dialog UI (used for delete confirmation)
+- **`requireDashboardUser()`** (`src/lib/server/requireDashboardUser.ts`) — shared Clerk + `users` row lookup for dashboard server actions
+- Exchange rates: background sync when data is stale ([ExchangeRate-API](https://www.exchangerate-api.com/) + BTC via CoinGecko); requires `EXCHANGERATE_API_KEY` for the REST call
+- PostgreSQL persistence via Drizzle (schema and migrations under `src/lib/db/`); deleting an asset removes related `transactions` rows in one DB transaction
 
 ## Prerequisites
 
@@ -76,8 +80,11 @@ Personal wealth dashboard: aggregate assets, choose a base currency, and see net
    | `CLERK_WEBHOOK_SECRET` | Verifying Clerk webhooks (e.g. user sync) |
    | `NEXT_PUBLIC_SUPABASE_URL` | Supabase project URL (if using Supabase client) |
    | `NEXT_PUBLIC_SUPABASE_ANON_KEY` | Supabase anonymous key |
+   | `EXCHANGERATE_API_KEY` | [ExchangeRate-API](https://www.exchangerate-api.com/) key for `/v6/.../latest/THB` sync (dashboard lazy refresh) |
 
    Follow the [Clerk Next.js quickstart](https://clerk.com/docs/quickstarts/nextjs) for redirect URLs and hosted sign-in/sign-up if needed.
+
+   Without `EXCHANGERATE_API_KEY`, rate sync logs an error and existing rows in `exchange_rates` (or seed data) are still used where present.
 
 4. **Database**
 
@@ -117,11 +124,15 @@ Personal wealth dashboard: aggregate assets, choose a base currency, and see net
 ## Project layout (high level)
 
 - `src/app/` — App Router pages, layouts, API routes, webhooks
-- `src/app/_components/` — Shared app-level components (e.g. home marketing)
-- `src/lib/db/` — Drizzle schema, migrations, seed
+- `src/app/_components/` — Feature UI (dashboard table, dialogs, home marketing)
+- `src/app/dashboard/_actions/` — Server actions (assets CRUD, `requireDashboardUser`)
+- `src/lib/db/` — Drizzle schema, migrations, seed, Postgres client (`connect_timeout` set for faster fail on bad `DATABASE_URL`)
 - `src/lib/components/` — UI primitives (shadcn-style)
-- `src/lib/services/` — Server-side domain logic
-- `src/proxy.ts` — Next.js 16 proxy (Clerk middleware, protected routes)
+- `src/lib/hooks/` — Client hooks (e.g. `useConfirmDialog`)
+- `src/lib/server/` — Shared server helpers (`requireDashboardUser`)
+- `src/lib/services/` — Domain logic (assets, rates, sync)
+- `src/lib/validation/` — Zod schemas (Zod 4: prefer `z.uuid()` over deprecated `z.string().uuid()`)
+- `src/proxy.ts` — Next.js 16 proxy entry (Clerk `clerkMiddleware`, `/dashboard` protection)
 
 ## License
 
