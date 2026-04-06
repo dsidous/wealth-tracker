@@ -1,6 +1,6 @@
 import { db } from '@/db';
 import { assets, exchangeRates, users } from '@/db/schema';
-import { eq } from 'drizzle-orm';
+import { and, eq } from 'drizzle-orm';
 import { Big } from 'big.js';
 import { syncRateConverter } from './exchangeRate';
 import { syncAllRates } from './syncAllRates';
@@ -84,4 +84,26 @@ export type NewAsset = typeof assets.$inferInsert;
 export async function createAsset(data: NewAsset) {
   const [result] = await db.insert(assets).values(data).returning();
   return result;
+}
+
+export type AssetUpdateFields = Pick<
+  NewAsset,
+  'name' | 'balance' | 'currency' | 'type'
+>;
+
+export async function updateAsset(
+  assetId: string,
+  userId: string,
+  data: AssetUpdateFields,
+) {
+  const [row] = await db
+    .update(assets)
+    .set({
+      ...data,
+      updatedAt: new Date(),
+    })
+    .where(and(eq(assets.id, assetId), eq(assets.userId, userId)))
+    .returning();
+
+  return row ?? null;
 }

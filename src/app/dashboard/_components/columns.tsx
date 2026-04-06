@@ -3,6 +3,7 @@
 import { ColumnDef } from '@tanstack/react-table';
 import type { AssetSummaryItem } from '@/services/assets';
 import { Badge } from '@/components/ui/badge';
+import { EditAssetDialog } from './editAssetDialog';
 
 const assetTypeBadgeVariants = {
   CASH: 'secondary',
@@ -84,5 +85,16 @@ export const columns: ColumnDef<AssetSummaryItem>[] = [
         </div>
       );
     },
+  },
+  {
+    id: 'actions',
+    header: () => <div className='text-right'>Actions</div>,
+    cell: ({ row }) => (
+      <div className='flex justify-end'>
+        <EditAssetDialog asset={row.original} />
+      </div>
+    ),
+    enableSorting: false,
+    size: 56,
   },
 ];

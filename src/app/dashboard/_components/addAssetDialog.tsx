@@ -6,7 +6,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { Loader2 } from 'lucide-react';
 
 import { addAssetAction } from '../_actions/addAssetAction';
-import { FormInputField, FormSelectField } from '@/components/formFields';
+import { AssetFormFields } from './assetFormFields';
 import { Button } from '@/components/ui/button';
 import {
   Dialog,
@@ -19,16 +19,10 @@ import {
   DialogTrigger,
 } from '@/components/ui/dialog';
 import { HookForm } from '@/components/ui/hookForm';
-import { assetTypes } from '@/db/schema';
 import {
   addAssetFormSchema,
   type AddAssetFormValues,
 } from '@/validation/addAssetForm';
-
-const assetTypeOptions = assetTypes.enumValues.map((t) => ({
-  value: t,
-  label: t,
-}));
 
 const addAssetFormDefaults: AddAssetFormValues = {
   name: '',
@@ -64,35 +58,7 @@ export function AddAssetDialog() {
               Add a new asset to your portfolio.
             </DialogDescription>
           </DialogHeader>
-          <FormInputField
-            name='name'
-            label='Asset Name'
-            placeholder='e.g. Cold Wallet BTC'
-            autoComplete='off'
-          />
-          <div className='grid grid-cols-2 gap-4'>
-            <FormInputField
-              name='balance'
-              label='Balance'
-              type='number'
-              step='any'
-              placeholder='0.5'
-            />
-            <FormSelectField
-              name='type'
-              label='Asset Type'
-              placeholder='Select an asset type'
-              options={assetTypeOptions}
-            />
-            <FormInputField
-              name='currency'
-              label='Currency'
-              placeholder='THB'
-              autoCapitalize='characters'
-              maxLength={3}
-              className='col-span-2 sm:col-span-1'
-            />
-          </div>
+          <AssetFormFields />
           <DialogFooter>
             <DialogClose asChild>
               <Button type='button' variant='outline'>
