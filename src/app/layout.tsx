@@ -2,7 +2,6 @@ import type { Metadata } from 'next';
 import { Montserrat } from 'next/font/google';
 import './globals.css';
 import { LOCALE } from '@/utils';
-import { Suspense } from 'react';
 import {
   ClerkProvider,
   Show,
@@ -30,37 +29,32 @@ export default function RootLayout({
   return (
     <html lang={LOCALE} className={fontSans.variable}>
       <body className='font-sans antialiased p-4'>
-        <Suspense fallback={<div>Loading...</div>}>
-          <div className='flex flex-col gap-4 max-w-7xl mx-auto'>
-            <ClerkProvider>
-              <header className='flex h-12 items-center justify-end gap-2 p-3 sm:h-14 sm:gap-2.5'>
-                <Show when='signed-out'>
-                  <SignInButton mode='redirect'>
-                    <Button
-                      variant='outline'
-                      size='sm'
-                      className='rounded-full px-3 text-xs'
-                    >
-                      Sign in
-                    </Button>
-                  </SignInButton>
-                  <SignUpButton mode='redirect'>
-                    <Button
-                      size='sm'
-                      className='rounded-full px-3 text-xs'
-                    >
-                      Sign up
-                    </Button>
-                  </SignUpButton>
-                </Show>
-                <Show when='signed-in'>
-                  <UserButton />
-                </Show>
-              </header>
-              {children}
-            </ClerkProvider>
-          </div>
-        </Suspense>
+        <div className='mx-auto flex max-w-7xl flex-col gap-4'>
+          <ClerkProvider>
+            <header className='flex h-12 items-center justify-end gap-2 p-3 sm:h-14 sm:gap-2.5'>
+              <Show when='signed-out'>
+                <SignInButton mode='redirect'>
+                  <Button
+                    variant='outline'
+                    size='sm'
+                    className='rounded-full px-3 text-xs'
+                  >
+                    Sign in
+                  </Button>
+                </SignInButton>
+                <SignUpButton mode='redirect'>
+                  <Button size='sm' className='rounded-full px-3 text-xs'>
+                    Sign up
+                  </Button>
+                </SignUpButton>
+              </Show>
+              <Show when='signed-in'>
+                <UserButton />
+              </Show>
+            </header>
+            {children}
+          </ClerkProvider>
+        </div>
       </body>
     </html>
   );
