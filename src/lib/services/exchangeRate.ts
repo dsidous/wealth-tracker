@@ -1,33 +1,18 @@
 import { Big } from 'big.js';
 
 export function syncRateConverter(
-  allRates: { fromCurrency: string; toCurrency: string; rate: string }[],
+  allRates: Array<{ code: string; rateFromUSD: string }>,
 ) {
-  // 1. Index the rates into a Map for O(1) performance
   const rateMap = new Map(
-    allRates.map((r) => [`${r.fromCurrency}_${r.toCurrency}`, r.rate]),
+    allRates.map((r) => [r.code, new Big(r.rateFromUSD)]),
   );
 
-  // 2. Return the lookup function
-  return (from: string, to: string): string | null => {
-    if (from === to) return '1';
+  return (amount: string, fromAsset: string, toTarget: string) => {
+    const fromRate = rateMap.get(fromAsset);
+    const toRate = rateMap.get(toTarget);
 
-    // Direct Match (e.g., USD -> THB)
-    const directKey = `${from}_${to}`;
-    if (rateMap.has(directKey)) return rateMap.get(directKey)!;
+    if (!fromRate || !toRate) return null;
 
-    // Cross-Rate / Pivot Logic (e.g., BTC -> USD -> THB)
-    const fromToUsd = rateMap.get(`${from}_USD`);
-    const usdToTarget = rateMap.get(`USD_${to}`);
-
-    if (fromToUsd && usdToTarget) {
-      try {
-        return new Big(fromToUsd).times(new Big(usdToTarget)).toString();
-      } catch {
-        return null;
-      }
-    }
-
-    return null;
+    return new Big(amount).div(fromRate).times(toRate).toFixed(2);
   };
 }

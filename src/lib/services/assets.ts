@@ -3,6 +3,7 @@ import { assets, exchangeRates, users } from '@/db/schema';
 import { eq } from 'drizzle-orm';
 import { Big } from 'big.js';
 import { syncRateConverter } from './exchangeRate';
+import { syncAllRates } from './syncAllRates';
 
 function getLatestTimestamp(items: Array<{ updatedAt: Date | null }>): Date {
   const timestamps = items
@@ -14,7 +15,7 @@ function getLatestTimestamp(items: Array<{ updatedAt: Date | null }>): Date {
 }
 
 export async function getAssetSummary(externalId: string) {
-  const [userWithAssets, allRates] = await Promise.all([
+  const [userWithAssets, initialRates] = await Promise.all([
     db.query.users.findFirst({
       where: eq(users.externalId, externalId),
       with: {
@@ -26,11 +27,23 @@ export async function getAssetSummary(externalId: string) {
 
   if (!userWithAssets) throw new Error('User not found');
 
+  let allRates = initialRates;
+  const SIX_HOURS = 1000 * 60 * 60 * 6;
+  const latestRateUpdate =
+    allRates.length > 0 ? new Date(allRates[0].updatedAt ?? 0).getTime() : 0;
+
+  if (Date.now() - latestRateUpdate > SIX_HOURS) {
+    console.log('🔄 Rates are stale. Triggering Lazy Sync...');
+    await syncAllRates();
+    allRates = await db.select().from(exchangeRates);
+  }
+
   const convert = syncRateConverter(allRates);
 
   const processedAssets = userWithAssets.assets.map((asset) => {
     const rateValue =
-      convert(asset.currency, userWithAssets.baseCurrency) ?? '0';
+      convert(asset.balance, asset.currency, userWithAssets.baseCurrency) ??
+      '0';
     const valueInBaseCurrency = new Big(asset.balance).times(rateValue);
 
     return {
