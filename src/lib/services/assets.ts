@@ -41,16 +41,23 @@ export async function getAssetSummary(externalId: string) {
   const convert = syncRateConverter(allRates);
 
   const processedAssets = userWithAssets.assets.map((asset) => {
-    const rateValue =
-      convert(asset.balance, asset.currency, userWithAssets.baseCurrency) ??
-      '0';
-    const valueInBaseCurrency = new Big(asset.balance).times(rateValue);
+    const convertedValue = convert(
+      asset.balance,
+      asset.currency,
+      userWithAssets.baseCurrency,
+    );
+
+    const unitRate = convert('1', asset.currency, userWithAssets.baseCurrency);
+
+    const valueInBaseCurrency = convertedValue
+      ? new Big(convertedValue)
+      : new Big(0);
 
     return {
       ...asset,
-      currentRate: rateValue,
+      currentRate: unitRate ?? '0',
       valueInBaseCurrency: valueInBaseCurrency.toFixed(2),
-      isRateMissing: rateValue === '0' && asset.balance !== '0',
+      isRateMissing: !convertedValue && asset.balance !== '0',
     };
   });
 
