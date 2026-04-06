@@ -6,7 +6,6 @@ import {
   varchar,
   pgEnum,
   decimal,
-  unique,
   index,
 } from 'drizzle-orm/pg-core';
 import { relations } from 'drizzle-orm';
@@ -65,19 +64,8 @@ export const transactions = pgTable('transactions', {
   note: text('note').notNull(),
 });
 
-export const exchangeRates = pgTable(
-  'exchange_rates',
-  {
-    id: uuid('id').primaryKey().defaultRandom().notNull(),
-    fromCurrency: varchar('from_currency', { length: 3 }).notNull(),
-    toCurrency: varchar('to_currency', { length: 3 }).notNull(),
-    rate: decimal('rate', { precision: 19, scale: 10 }).notNull(),
-    updatedAt: timestamp('updated_at').defaultNow().notNull(),
-  },
-  (table) => [
-    unique('exchange_rates_pair_unique').on(
-      table.fromCurrency,
-      table.toCurrency,
-    ),
-  ],
-);
+export const exchangeRates = pgTable('exchange_rates', {
+  code: varchar('code', { length: 10 }).primaryKey().notNull(), // 'THB', 'GBP', 'BTC'
+  rateFromUSD: decimal('rate_from_usd', { precision: 19, scale: 10 }).notNull(),
+  updatedAt: timestamp('updated_at').defaultNow().notNull(),
+});

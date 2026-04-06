@@ -62,11 +62,11 @@ async function main() {
       },
     ]);
 
-    // 5. Seed Exchange Rates
+    // 5. Seed Exchange Rates (codes + rate_from_usd; illustrative values)
     await tx.insert(exchangeRates).values([
-      { fromCurrency: 'USD', toCurrency: 'THB', rate: '35.5000000000' },
-      { fromCurrency: 'BTC', toCurrency: 'USD', rate: '65000.0000000000' },
-      { fromCurrency: 'BTC', toCurrency: 'THB', rate: '2450000.00' },
+      { code: 'USD', rateFromUSD: '1.0000000000' },
+      { code: 'THB', rateFromUSD: '35.5000000000' },
+      { code: 'BTC', rateFromUSD: '65000.0000000000' },
     ]);
   });
 
