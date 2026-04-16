@@ -2,13 +2,16 @@
 
 import { revalidatePath } from 'next/cache';
 import { createAsset } from '@/services/assets';
-import { addAssetFormSchema } from '@/validation/addAssetForm';
+import {
+  addAssetFormSchema,
+  AddAssetFormValues,
+} from '@/validation/addAssetForm';
 import { requireDashboardUser } from '@/server/requireDashboardUser';
 
-export async function addAssetAction(raw: unknown) {
+export async function addAssetAction(values: AddAssetFormValues) {
   const user = await requireDashboardUser();
 
-  const validated = addAssetFormSchema.parse(raw);
+  const validated = addAssetFormSchema.parse(values);
 
   await createAsset({
     ...validated,

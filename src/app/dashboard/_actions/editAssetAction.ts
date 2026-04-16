@@ -2,13 +2,16 @@
 
 import { revalidatePath } from 'next/cache';
 import { updateAsset } from '@/services/assets';
-import { editAssetFormSchema } from '@/validation/editAssetForm';
+import {
+  editAssetFormSchema,
+  EditAssetFormValues,
+} from '@/validation/editAssetForm';
 import { requireDashboardUser } from '@/server/requireDashboardUser';
 
-export async function editAssetAction(raw: unknown) {
+export async function editAssetAction(values: EditAssetFormValues) {
   const user = await requireDashboardUser();
 
-  const validated = editAssetFormSchema.parse(raw);
+  const validated = editAssetFormSchema.parse(values);
 
   const updated = await updateAsset(validated.id, user.id, {
     name: validated.name,
