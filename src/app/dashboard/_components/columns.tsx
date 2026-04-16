@@ -109,7 +109,7 @@ export function createAssetColumns({
             aria-label={`Delete ${row.original.name}`}
             onClick={() => onRequestDelete(row.original)}
           >
-            <Trash2 className='size-4' />
+            <Trash2 className='size-4 text-destructive' />
           </Button>
         </div>
       ),

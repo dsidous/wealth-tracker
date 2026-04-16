@@ -16,7 +16,7 @@ export default async function DashboardContents() {
     await getAssetSummary(userId);
 
   return (
-    <div className='flex flex-col gap-4 justify-between'>
+    <div className='container mx-auto space-y-5'>
       <TotalNetWorth
         totalNetWorth={totalNetWorth}
         baseCurrency={baseCurrency}

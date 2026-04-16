@@ -20,7 +20,7 @@ export const TotalNetWorth = ({
   lastUpdated,
 }: TotalNetWorthProps) => {
   return (
-    <Card className='w-xs'>
+    <Card className='max-w-sm'>
       <CardHeader>
         <CardTitle>Total Net Worth</CardTitle>
         <CardContent className='text-3xl font-bold text-center'>

@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { Loader2 } from 'lucide-react';
+import { Loader2, Plus } from 'lucide-react';
 
 import { addAssetAction } from '../_actions/addAssetAction';
 import { AssetFormFields } from './assetFormFields';
@@ -47,8 +47,13 @@ export function AddAssetDialog() {
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
-      <DialogTrigger asChild className='w-full'>
-        <Button>Add Asset</Button>
+      <DialogTrigger asChild>
+        <div className='flex w-full justify-end'>
+          <Button size='sm' aria-label='Add Asset'>
+            <Plus />
+            Add Asset
+          </Button>
+        </div>
       </DialogTrigger>
       <DialogContent>
         <HookForm form={form} className='space-y-4' onSubmit={handleSubmit}>
