@@ -2,6 +2,7 @@ import { db } from '@/db';
 import { assets, exchangeRates, transactions, users } from '@/db/schema';
 import { and, eq } from 'drizzle-orm';
 import { Big } from 'big.js';
+import { ensureUserByClerkId } from '@/services/users';
 import { syncRateConverter } from './exchangeRate';
 import { syncAllRates } from './syncAllRates';
 
@@ -15,7 +16,7 @@ function getLatestTimestamp(items: Array<{ updatedAt: Date | null }>): Date {
 }
 
 export async function getAssetSummary(externalId: string) {
-  const [userWithAssets, initialRates] = await Promise.all([
+  const [initialUser, initialRates] = await Promise.all([
     db.query.users.findFirst({
       where: eq(users.externalId, externalId),
       with: {
@@ -24,6 +25,17 @@ export async function getAssetSummary(externalId: string) {
     }),
     db.select().from(exchangeRates),
   ]);
+
+  let userWithAssets = initialUser;
+  if (!userWithAssets) {
+    await ensureUserByClerkId(externalId);
+    userWithAssets = await db.query.users.findFirst({
+      where: eq(users.externalId, externalId),
+      with: {
+        assets: true,
+      },
+    });
+  }
 
   if (!userWithAssets) throw new Error('User not found');
 
